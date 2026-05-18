@@ -21,7 +21,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
 
 
   @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
+  public void beforeEach(ExtensionContext context) {
     AnnotationSupport.findAnnotation(
         context.getRequiredTestMethod(),
         Spending.class
