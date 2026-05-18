@@ -26,7 +26,7 @@ public class UsersQueueExtension implements BeforeTestExecutionCallback, AfterTe
 
     static {
         EMPTY_USERS.add(new StaticUser("duck", "12345", null, null, null));
-        USERS_WITH_FRIEND.add(new StaticUser("pig", "12345", "", null, null));
+        USERS_WITH_FRIEND.add(new StaticUser("pig", "12345", "cow", null, null));
         USERS_WITH_INCOME_REQUEST.add(new StaticUser("dog", "12345",  null, "", null));
         USERS_WITH_OUTCOME_REQUEST.add(new StaticUser("cat", "12345",  null, null, ""));
     }
@@ -62,12 +62,11 @@ public class UsersQueueExtension implements BeforeTestExecutionCallback, AfterTe
                             testCase.setStart(new Date().getTime())
                     );
 
-                    context.getStore(NAMESPACE)
+                    ((Map<UserType, StaticUser>) context.getStore(NAMESPACE)
                             .getOrComputeIfAbsent(
                                     context.getUniqueId(),
-                                    key -> new HashMap<>(),
-                                    Map.class
-                            ).put(ut, user.orElseThrow(() -> new IllegalStateException("Static user was not found in 30 seconds")));
+                                    key -> new HashMap<>()
+                            )).put(ut, user.orElseThrow(() -> new IllegalStateException("Static user was not found in 30 seconds")));
                 });
     }
 
@@ -92,8 +91,11 @@ public class UsersQueueExtension implements BeforeTestExecutionCallback, AfterTe
                 && AnnotationSupport.isAnnotated(parameterContext.getParameter(), UserType.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId(), StaticUser.class);
+    public StaticUser resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return ((Map<UserType, StaticUser>) extensionContext.getStore(NAMESPACE)
+                .get(extensionContext.getUniqueId(), Map.class))
+                .get(parameterContext.getParameter().getAnnotation(UserType.class));
     }
 }
