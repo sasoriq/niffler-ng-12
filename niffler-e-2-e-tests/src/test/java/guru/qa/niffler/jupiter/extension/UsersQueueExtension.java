@@ -27,8 +27,8 @@ public class UsersQueueExtension implements BeforeTestExecutionCallback, AfterTe
     static {
         EMPTY_USERS.add(new StaticUser("duck", "12345", null, null, null));
         USERS_WITH_FRIEND.add(new StaticUser("pig", "12345", "cow", null, null));
-        USERS_WITH_INCOME_REQUEST.add(new StaticUser("dog", "12345",  null, "", null));
-        USERS_WITH_OUTCOME_REQUEST.add(new StaticUser("cat", "12345",  null, null, ""));
+        USERS_WITH_INCOME_REQUEST.add(new StaticUser("dog", "12345",  null, "cat", null));
+        USERS_WITH_OUTCOME_REQUEST.add(new StaticUser("cat", "12345",  null, null, "dog"));
     }
 
     @Retention(RetentionPolicy.RUNTIME)
