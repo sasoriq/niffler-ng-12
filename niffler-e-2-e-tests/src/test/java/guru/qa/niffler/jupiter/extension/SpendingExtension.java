@@ -40,9 +40,9 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
               anno.description(),
               anno.username()
           );
-          SpendJson createdSpending = spendClient.createSpend(spend);
           context.getStore(NAMESPACE)
-              .put(context.getUniqueId(), createdSpending);
+              .put(context.getUniqueId(),
+                      spendClient.createSpend(spend));
         }
     );
   }

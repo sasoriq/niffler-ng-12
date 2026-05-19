@@ -22,7 +22,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public UserdataEntity createUser(UserdataEntity user) {
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO user (username, currency, firstname, surname, fullname, photo, photoSmall) " +
+                    "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photoSmall) " +
                             "VALUES (?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
             )) {
@@ -30,7 +30,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
                 ps.setObject(2, user.getCurrency());
                 ps.setString(3, user.getFirstname());
                 ps.setString(4, user.getSurname());
-                ps.setString(5, user.getFullname());
+                ps.setString(5, user.getFullName());
                 ps.setBytes(6, user.getPhoto());
                 ps.setBytes(7, user.getPhotoSmall());
                 ps.executeUpdate();
@@ -55,7 +55,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public Optional<UserdataEntity> findById(UUID id) {
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM user WHERE id = ?"
+                    "SELECT * FROM \"user\" WHERE id = ?"
             )) {
                 ps.setObject(1, id);
                 ps.execute();
@@ -77,7 +77,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public Optional<UserdataEntity> findByUsername(String username) {
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM user WHERE username = ?"
+                    "SELECT * FROM \"user\" WHERE username = ?"
             )) {
                 ps.setObject(1, username);
                 ps.execute();
@@ -99,7 +99,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public void delete(UserdataEntity user) {
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "DELETE FROM user WHERE id = ?"
+                    "DELETE FROM \"user\" WHERE id = ?"
             )) {
                 ps.setObject(1, user.getId());
                 ps.executeUpdate();
@@ -113,10 +113,10 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         UserdataEntity entity = new UserdataEntity();
         entity.setId(rs.getObject("id", UUID.class));
         entity.setUsername(rs.getString("username"));
-        entity.setCurrency(rs.getObject("currency", CurrencyValues.class));
+        entity.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
         entity.setFirstname(rs.getString("firstname"));
         entity.setSurname(rs.getString("surname"));
-        entity.setFullname(rs.getString("fullname"));
+        entity.setFullName(rs.getString("full_name"));
         entity.setPhoto(rs.getBytes("photo"));
         entity.setPhotoSmall(rs.getBytes("photo_small"));
         return entity;

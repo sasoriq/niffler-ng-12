@@ -15,7 +15,7 @@ public class UserdataEntity implements Serializable {
     private CurrencyValues currency;
     private String firstname;
     private String surname;
-    private String fullname;
+    private String fullName;
     private byte[] photo;
     private byte[] photoSmall;
 }

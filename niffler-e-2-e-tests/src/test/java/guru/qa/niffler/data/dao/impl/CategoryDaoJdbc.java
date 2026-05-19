@@ -80,12 +80,12 @@ public class CategoryDaoJdbc implements CategoryDao {
                 ps.setString(1, username);
                 ps.setString(2, categoryName);
                 ps.execute();
-
-                ResultSet rs = ps.getResultSet();
-                if (rs.next()) {
-                    CategoryEntity entity = extractCategoryEntity(rs);
-                    return Optional.of(entity);
-                } else return Optional.empty();
+                try (ResultSet rs = ps.getResultSet()) {
+                    if (rs.next()) {
+                        CategoryEntity entity = extractCategoryEntity(rs);
+                        return Optional.of(entity);
+                    } else return Optional.empty();
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -101,11 +101,11 @@ public class CategoryDaoJdbc implements CategoryDao {
             )) {
                 ps.setString(1, username);
                 ps.execute();
-
-                ResultSet rs = ps.getResultSet();
-                while (rs.next()) {
-                    CategoryEntity entity = extractCategoryEntity(rs);
-                    categories.add(entity);
+                try (ResultSet rs = ps.getResultSet()) {
+                    while (rs.next()) {
+                        CategoryEntity entity = extractCategoryEntity(rs);
+                        categories.add(entity);
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -131,10 +131,10 @@ public class CategoryDaoJdbc implements CategoryDao {
 
     private CategoryEntity extractCategoryEntity(ResultSet rs) throws SQLException {
         CategoryEntity entity = new CategoryEntity();
-        entity.setId(rs.getObject("c.id", UUID.class));
-        entity.setName(rs.getString("c.name"));
-        entity.setUsername(rs.getString("c.username"));
-        entity.setArchived(rs.getBoolean("c.archived"));
+        entity.setId(rs.getObject("id", UUID.class));
+        entity.setName(rs.getString("name"));
+        entity.setUsername(rs.getString("username"));
+        entity.setArchived(rs.getBoolean("archived"));
         return entity;
     }
 }
