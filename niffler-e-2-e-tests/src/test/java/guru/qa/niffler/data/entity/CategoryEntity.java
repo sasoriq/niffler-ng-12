@@ -1,4 +1,4 @@
-package guru.qa.niffler.data.entity.spend;
+package guru.qa.niffler.data.entity;
 
 import guru.qa.niffler.model.CategoryJson;
 import lombok.Getter;
