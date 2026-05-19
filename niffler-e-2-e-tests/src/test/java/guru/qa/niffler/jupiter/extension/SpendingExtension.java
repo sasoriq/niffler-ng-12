@@ -17,7 +17,7 @@ import java.util.Date;
 public class SpendingExtension implements BeforeEachCallback, ParameterResolver {
 
   public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
-  private final SpendClient spendClient = new SpendDbClient();
+  private final SpendDbClient spendClient = new SpendDbClient();
 
 
   @Override
@@ -41,7 +41,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
               anno.description(),
               anno.username()
           );
-          SpendJson createdSpending = spendClient.createSpending(spend);
+          SpendJson createdSpending = spendClient.createSpend(spend);
           context.getStore(NAMESPACE)
               .put(context.getUniqueId(), createdSpending);
         }
