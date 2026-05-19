@@ -1,16 +1,16 @@
 package guru.qa.niffler.data.dao;
 
-import guru.qa.niffler.data.entity.UserdataEntity;
+import guru.qa.niffler.data.entity.UserdataUserEntity;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface UserdataUserDao {
-    UserdataEntity createUser(UserdataEntity user);
+    UserdataUserEntity createUser(UserdataUserEntity user);
 
-    Optional<UserdataEntity> findById(UUID id);
+    Optional<UserdataUserEntity> findById(UUID id);
 
-    Optional<UserdataEntity> findByUsername(String username);
+    Optional<UserdataUserEntity> findByUsername(String username);
 
-    void delete(UserdataEntity user);
+    void delete(UserdataUserEntity user);
 }

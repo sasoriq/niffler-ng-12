@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserdataEntity implements Serializable {
+public class UserdataUserEntity implements Serializable {
     private UUID id;
     private String username;
     private CurrencyValues currency;
