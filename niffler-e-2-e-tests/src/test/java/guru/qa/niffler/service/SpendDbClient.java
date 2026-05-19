@@ -7,18 +7,7 @@ import guru.qa.niffler.data.dao.impl.CategoryDaoJdbc;
 import guru.qa.niffler.data.dao.impl.SpendDaoJdbc;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
-import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Optional;
-import java.util.UUID;
 
 public class SpendDbClient {
 
