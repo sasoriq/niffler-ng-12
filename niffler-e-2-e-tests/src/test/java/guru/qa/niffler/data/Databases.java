@@ -118,7 +118,7 @@ public class Databases {
                 dsBean.setXaDataSourceClassName("org.postgresql.xa.PGXADataSource");
                 Properties props = new Properties();
                 props.put("URL", jdbcUrl);
-                props.put("name", "postgres");
+                props.put("user", "postgres");
                 props.put("password", "secret");
                 dsBean.setXaProperties(props);
                 dsBean.setMaxPoolSize(10);
