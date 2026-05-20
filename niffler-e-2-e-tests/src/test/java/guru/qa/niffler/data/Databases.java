@@ -31,6 +31,7 @@ public class Databases {
         try {
             connection = connection(jdbcUrl);
             connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             T result = function.apply(connection);
             connection.commit();
             connection.setAutoCommit(true);
@@ -55,7 +56,10 @@ public class Databases {
             ut.begin();
             T result = null;
             for (XaFunction<T> action : actions) {
-                result = action.function.apply(connection(action.jdbcUrl));
+                try (Connection connection = connection(action.jdbcUrl)) {
+                    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                    result = action.function.apply(connection);
+                }
             }
             ut.commit();
             return result;
@@ -74,6 +78,7 @@ public class Databases {
         try {
             connection = connection(jdbcUrl);
             connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             consumer.accept(connection);
             connection.commit();
             connection.setAutoCommit(true);
@@ -95,7 +100,10 @@ public class Databases {
         try {
             ut.begin();
             for (XaConsumer action : actions) {
-                action.consumer.accept(connection(action.jdbcUrl));
+                try (Connection connection = connection(action.jdbcUrl)) {
+                    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                    action.consumer.accept(connection);
+                }
             }
             ut.commit();
         } catch (Exception e) {
