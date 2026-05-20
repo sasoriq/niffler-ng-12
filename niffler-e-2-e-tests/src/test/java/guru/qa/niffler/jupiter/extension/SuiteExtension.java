@@ -20,12 +20,7 @@ public interface SuiteExtension extends BeforeAllCallback {
                         this.getClass(),
                         key -> {
                             beforeSuite(rootContext);
-                            return new AutoCloseable() {
-                                @Override
-                                public void close() {
-                                    afterSuite();
-                                }
-                            };
+                            return (AutoCloseable) this::afterSuite;
                         }
                 );
     }
