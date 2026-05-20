@@ -23,5 +23,4 @@ public record CategoryJson(
                 entity.isArchived()
         );
     }
-
 }
