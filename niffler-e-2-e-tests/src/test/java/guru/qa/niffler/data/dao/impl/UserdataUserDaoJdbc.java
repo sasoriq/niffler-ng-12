@@ -15,8 +15,6 @@ import java.util.UUID;
 
 public class UserdataUserDaoJdbc implements UserdataUserDao {
 
-    private static final Config CFG = Config.getInstance();
-
     private final Connection connection;
 
     public UserdataUserDaoJdbc(Connection connection) {
