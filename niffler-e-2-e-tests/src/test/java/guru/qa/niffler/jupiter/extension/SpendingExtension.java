@@ -1,6 +1,7 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.SpendDbClient;
@@ -13,50 +14,55 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Date;
 
+import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.context;
+import static guru.qa.niffler.utils.RandomDataUtils.randomSentence;
+
 public class SpendingExtension implements BeforeEachCallback, ParameterResolver {
 
-  public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
-  private final SpendDbClient spendClient = new SpendDbClient();
+    public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
+    private final SpendDbClient spendClient = new SpendDbClient();
 
+    @Override
+    public void beforeEach(ExtensionContext context) {
+        AnnotationSupport.findAnnotation(
+            context.getRequiredTestMethod(),
+            User.class
+        ).ifPresent(
+            user -> {
+                if (user.spendings().length > 0) {
+                    Spending spend = user.spendings()[0];
+                    String description = spend.description().isBlank() ? randomSentence(10) : spend.description();
 
-  @Override
-  public void beforeEach(ExtensionContext context) {
-    AnnotationSupport.findAnnotation(
-        context.getRequiredTestMethod(),
-        Spending.class
-    ).ifPresent(
-        anno -> {
-          SpendJson spend = new SpendJson(
-              null,
-              new Date(),
-              new CategoryJson(
-                  null,
-                  anno.category(),
-                  anno.username(),
-                  false
-              ),
-              anno.currency(),
-              anno.amount(),
-              anno.description(),
-              anno.username()
-          );
-          context.getStore(NAMESPACE)
-              .put(context.getUniqueId(),
-                      spendClient.createSpend(spend));
-        }
-    );
-  }
+                    CategoryJson category = context().getStore(CategoryExtension.NAMESPACE)
+                        .get(context().getUniqueId(), CategoryJson.class);
 
-  @Override
-  public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-    return parameterContext.getParameter()
-        .getType()
-        .isAssignableFrom(SpendJson.class);
-  }
+                    SpendJson spendJson = new SpendJson(
+                        null,
+                        new Date(),
+                        category,
+                        spend.currency(),
+                        spend.amount(),
+                        description,
+                        user.username()
+                    );
+                    context.getStore(NAMESPACE)
+                        .put(context.getUniqueId(),
+                            spendClient.createSpend(spendJson));
+                }
+            }
+        );
+    }
 
-  @Override
-  public SpendJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-    return extensionContext.getStore(NAMESPACE)
-        .get(extensionContext.getUniqueId(), SpendJson.class);
-  }
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter()
+            .getType()
+            .equals(SpendJson.class);
+    }
+
+    @Override
+    public SpendJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return extensionContext.getStore(NAMESPACE)
+            .get(extensionContext.getUniqueId(), SpendJson.class);
+    }
 }

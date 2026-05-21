@@ -2,28 +2,34 @@ package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.User;
+import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.LoginPage;
 import org.junit.jupiter.api.Test;
-import retrofit2.Retrofit;
 
+@WebTest
 public class SpendingTest {
 
   private static final Config CFG = Config.getInstance();
 
   @Test
-  @Spending(
-      username = "duck",
-      category = "Обучение",
-      description = "Niffler 12 поток!",
-      amount = 119000
+  @User(
+      username = "cat",
+      categories = @Category(
+          archived = true
+      ),
+      spendings = @Spending(
+          amount = 1000
+      )
   )
   void spendingDescriptionShouldBeEditedByTableAction(SpendJson spendJson) {
-    final String newDescription = "Niffler - финальный поток";
+    final String newDescription = "abc";
 
     Selenide.open(CFG.frontUrl(), LoginPage.class)
-        .login("duck", "12345")
+        .login(spendJson.username(), "12345")
         .openSpendingByDescription(spendJson.description())
         .editSpendingDescription(newDescription)
         .save()
