@@ -38,4 +38,13 @@ public class SpendDbClient {
             );
         }, CFG.spendJdbcUrl());
     }
+
+    public CategoryJson updateCategory(CategoryJson category) {
+        return transaction(connection -> {
+            CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
+            return CategoryJson.fromEntity(
+                new CategoryDaoJdbc(connection).updateCategory(categoryEntity)
+            );
+        }, CFG.spendJdbcUrl());
+    }
 }

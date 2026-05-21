@@ -110,6 +110,21 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
+    public CategoryEntity updateCategory(CategoryEntity category) {
+        try (PreparedStatement ps = connection.prepareStatement(
+            "UPDATE category SET name = ?, archived = ? WHERE id = ?"
+        )) {
+            ps.setString(1, category.getName());
+            ps.setBoolean(2, category.isArchived());
+            ps.setObject(3, category.getId());
+            ps.executeUpdate();
+            return category;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void deleteCategory(CategoryEntity category) {
         try (PreparedStatement ps = connection.prepareStatement(
             "DELETE FROM category WHERE id = ?"
