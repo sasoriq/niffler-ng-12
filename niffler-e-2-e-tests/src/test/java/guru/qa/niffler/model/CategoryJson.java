@@ -11,7 +11,7 @@ public record CategoryJson(
     @JsonProperty("name")
     String name,
     @JsonProperty("username")
-    String[] username,
+    String username,
     @JsonProperty("archived")
     boolean archived) {
 
