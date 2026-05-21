@@ -17,25 +17,19 @@ public class SpendingTest {
 
   @Test
   @User(
-      username = "",
-      categories = {@Category(
-          name = "",
+      username = "cat",
+      categories = @Category(
           archived = true
-      ), @Category(
-          name = "",
-          archived = true
-      )},
+      ),
       spendings = @Spending(
-          category = "",
-          description = "",
           amount = 1000
       )
   )
   void spendingDescriptionShouldBeEditedByTableAction(SpendJson spendJson) {
-    final String newDescription = "Niffler - финальный поток";
+    final String newDescription = "abc";
 
     Selenide.open(CFG.frontUrl(), LoginPage.class)
-        .login("duck", "12345")
+        .login(spendJson.username(), "12345")
         .openSpendingByDescription(spendJson.description())
         .editSpendingDescription(newDescription)
         .save()
