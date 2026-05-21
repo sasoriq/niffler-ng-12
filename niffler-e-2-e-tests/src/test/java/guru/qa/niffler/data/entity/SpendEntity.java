@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 public class SpendEntity implements Serializable {
     private UUID id;
-    private String username;
+    private String[] username;
     private CurrencyValues currency;
     private Date spendDate;
     private Double amount;

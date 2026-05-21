@@ -20,7 +20,7 @@ public record SpendJson(
     @JsonProperty("description")
     String description,
     @JsonProperty("username")
-    String username) {
+    String[] username) {
 
     public static SpendJson fromEntity(SpendEntity entity) {
         return new SpendJson(
