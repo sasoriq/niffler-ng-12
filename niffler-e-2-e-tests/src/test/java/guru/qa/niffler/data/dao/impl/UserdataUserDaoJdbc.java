@@ -29,7 +29,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
             Statement.RETURN_GENERATED_KEYS
         )) {
             ps.setString(1, user.getUsername());
-            ps.setObject(2, user.getCurrency());
+            ps.setObject(2, user.getCurrency().name());
             ps.setString(3, user.getFirstname());
             ps.setString(4, user.getSurname());
             ps.setString(5, user.getFullName());

@@ -20,7 +20,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     }
 
     @Override
-    public List<AuthAuthorityEntity> create(List<AuthAuthorityEntity> authorities) {
+    public void create(List<AuthAuthorityEntity> authorities) {
         try (PreparedStatement ps = connection.prepareStatement(
             "INSERT INTO 'authority' (user_id, authority) " +
                 "VALUES (?, ?)",
@@ -37,7 +37,6 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                     }
                 }
             }
-            return authorities;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
