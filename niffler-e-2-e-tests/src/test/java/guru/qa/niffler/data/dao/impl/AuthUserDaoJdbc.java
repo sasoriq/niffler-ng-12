@@ -98,6 +98,24 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
+    public List<AuthUserEntity> findAll() {
+        List<AuthUserEntity> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+            "SELECT * FROM 'user'"
+        )) {
+            try (ResultSet rs = ps.getResultSet()) {
+                while (rs.next()) {
+                    AuthUserEntity entity = extractUserEntity(rs);
+                    users.add(entity);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
+    }
+
+    @Override
     public void deleteUser(AuthUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
             "DELETE FROM 'user' WHERE id = ?"

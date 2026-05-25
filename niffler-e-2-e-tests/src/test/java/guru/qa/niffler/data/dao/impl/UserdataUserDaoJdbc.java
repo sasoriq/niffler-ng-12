@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.UserdataUserEntity;
 import guru.qa.niffler.model.CurrencyValues;
@@ -10,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -90,6 +91,25 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<UserdataUserEntity> findAll() {
+        List<UserdataUserEntity> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+            "SELECT * FROM \"user\""
+        )) {
+            ps.execute();
+            try (ResultSet rs = ps.getResultSet()) {
+                while (rs.next()) {
+                    UserdataUserEntity entity = extractUserdataEntity(rs);
+                    users.add(entity);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
     }
 
     @Override

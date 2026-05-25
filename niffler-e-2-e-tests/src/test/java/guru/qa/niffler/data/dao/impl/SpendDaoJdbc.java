@@ -4,6 +4,7 @@ import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
 import guru.qa.niffler.model.CurrencyValues;
+import org.hibernate.annotations.processing.SQL;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -111,6 +112,25 @@ public class SpendDaoJdbc implements SpendDao {
             throw new RuntimeException(e);
         }
 
+        return spends;
+    }
+
+    @Override
+    public List<SpendEntity> findAll() {
+        List<SpendEntity> spends = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+            "SELECT * FROM spend"
+        )) {
+            ps.execute();
+            try (ResultSet rs = ps.getResultSet()) {
+                while (rs.next()) {
+                    SpendEntity entity = extractSpendEntity(rs);
+                    spends.add(entity);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return spends;
     }
 
