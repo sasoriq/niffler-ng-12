@@ -2,6 +2,7 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.AuthAuthorityEntity;
+import guru.qa.niffler.data.mapper.AuthAuthorityEntityRowMapper;
 import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,5 +39,14 @@ public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
             }
         );
 
+    }
+
+    @Override
+    public List<AuthAuthorityEntity> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        return jdbcTemplate.query(
+            "SELECT * FROM 'authority'",
+            AuthAuthorityEntityRowMapper.instance
+        );
     }
 }
