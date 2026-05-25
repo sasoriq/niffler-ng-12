@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.UserdataUserEntity;
 import guru.qa.niffler.model.CurrencyValues;
@@ -22,14 +21,14 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public UserdataUserEntity createUser(UserdataUserEntity user) {
+    public UserdataUserEntity create(UserdataUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
             "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photoSmall) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)",
             Statement.RETURN_GENERATED_KEYS
         )) {
             ps.setString(1, user.getUsername());
-            ps.setObject(2, user.getCurrency());
+            ps.setString(2, user.getCurrency().name());
             ps.setString(3, user.getFirstname());
             ps.setString(4, user.getSurname());
             ps.setString(5, user.getFullName());
@@ -58,8 +57,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
             "SELECT * FROM \"user\" WHERE id = ?"
         )) {
             ps.setObject(1, id);
-            ps.execute();
-            try (ResultSet rs = ps.getResultSet()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UserdataUserEntity entity = extractUserdataEntity(rs);
                     return Optional.of(entity);
@@ -77,9 +75,8 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         try (PreparedStatement ps = connection.prepareStatement(
             "SELECT * FROM \"user\" WHERE username = ?"
         )) {
-            ps.setObject(1, username);
-            ps.execute();
-            try (ResultSet rs = ps.getResultSet()) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UserdataUserEntity entity = extractUserdataEntity(rs);
                     return Optional.of(entity);
@@ -116,5 +113,4 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         entity.setPhotoSmall(rs.getBytes("photo_small"));
         return entity;
     }
-
 }

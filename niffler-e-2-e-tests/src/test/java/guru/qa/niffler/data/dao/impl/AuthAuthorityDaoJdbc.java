@@ -20,15 +20,15 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     }
 
     @Override
-    public List<AuthAuthorityEntity> create(List<AuthAuthorityEntity> authorities) {
+    public void create(List<AuthAuthorityEntity> authorities) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "INSERT INTO 'authority' (user_id, authority) " +
+            "INSERT INTO \"authority\" (user_id, authority) " +
                 "VALUES (?, ?)",
             Statement.RETURN_GENERATED_KEYS
         )) {
             for (AuthAuthorityEntity authority : authorities) {
-                ps.setObject(1, authority.getUser());
-                ps.setObject(2, authority.getAuthority());
+                ps.setObject(1, authority.getUser().getId());
+                ps.setString(2, authority.getAuthority().name());
                 ps.executeUpdate();
 
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -37,7 +37,6 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                     }
                 }
             }
-            return authorities;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
