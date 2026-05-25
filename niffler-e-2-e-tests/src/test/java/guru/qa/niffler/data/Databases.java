@@ -1,5 +1,6 @@
 package guru.qa.niffler.data;
 
+import guru.qa.niffler.config.Config;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -12,6 +13,7 @@ public class Databases {
     private Databases() {
     }
 
+    private static final Config CFG = Config.getInstance();
     private static final Map<String, DataSource> dataSources = new ConcurrentHashMap<>();
 
     private static DataSource dataSource(String jdbcUrl) {
@@ -19,8 +21,8 @@ public class Databases {
                 jdbcUrl,
                 key -> {
                     PGSimpleDataSource ds = new PGSimpleDataSource();
-                    ds.setUser("postgres");
-                    ds.setPassword("secret");
+                    ds.setUser(CFG.dbUsername());
+                    ds.setPassword(CFG.dbPassword());
                     ds.setUrl(key);
                     return ds;
                 }

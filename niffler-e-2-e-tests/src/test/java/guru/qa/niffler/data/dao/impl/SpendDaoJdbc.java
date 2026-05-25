@@ -135,7 +135,7 @@ public class SpendDaoJdbc implements SpendDao {
     private SpendEntity extractSpendEntity(ResultSet rs) throws SQLException {
         SpendEntity entity = new SpendEntity();
         entity.setId(rs.getObject("s_id", UUID.class));
-        entity.setUsername("s_username");
+        entity.setUsername(rs.getString("s_username"));
         entity.setCurrency(CurrencyValues.valueOf(rs.getString("s_currency")));
         entity.setSpendDate(Date.valueOf(rs.getObject("s_spend_date", LocalDate.class)));
         entity.setAmount(rs.getDouble("s_amount"));

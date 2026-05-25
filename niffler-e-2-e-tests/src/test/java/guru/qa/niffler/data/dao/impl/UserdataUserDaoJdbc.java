@@ -20,7 +20,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
 
     @Override
     public UserdataUserEntity createUser(UserdataUserEntity user) {
-        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+        try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photoSmall) " +
                             "VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -53,7 +53,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
 
     @Override
     public Optional<UserdataUserEntity> findById(UUID id) {
-        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+        try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "SELECT * FROM \"user\" WHERE id = ?"
             )) {
@@ -75,7 +75,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
 
     @Override
     public Optional<UserdataUserEntity> findByUsername(String username) {
-        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+        try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "SELECT * FROM \"user\" WHERE username = ?"
             )) {
@@ -97,7 +97,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
 
     @Override
     public void delete(UserdataUserEntity user) {
-        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+        try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "DELETE FROM \"user\" WHERE id = ?"
             )) {
