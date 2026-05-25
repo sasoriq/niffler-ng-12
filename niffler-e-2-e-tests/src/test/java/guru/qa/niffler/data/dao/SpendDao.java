@@ -1,5 +1,6 @@
 package guru.qa.niffler.data.dao;
 
+import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
 
 import java.util.List;
@@ -12,6 +13,8 @@ public interface SpendDao {
     Optional<SpendEntity> findSpendById(UUID id);
 
     List<SpendEntity> findAllByUsername(String username);
+
+    List<SpendEntity> findAll();
 
     void deleteSpend(SpendEntity spend);
 }

@@ -13,5 +13,7 @@ public interface AuthUserDao {
 
     List<AuthUserEntity> findAllByUsername(String username);
 
+    List<AuthUserEntity> findAll();
+
     void deleteUser(AuthUserEntity user);
 }
