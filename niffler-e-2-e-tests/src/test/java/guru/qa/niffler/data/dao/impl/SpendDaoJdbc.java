@@ -4,7 +4,6 @@ import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
 import guru.qa.niffler.model.CurrencyValues;
-import org.hibernate.annotations.processing.SQL;
 
 import java.sql.Connection;
 import java.sql.Date;
