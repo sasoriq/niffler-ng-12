@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao;
 
-import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
 
 import java.util.List;
