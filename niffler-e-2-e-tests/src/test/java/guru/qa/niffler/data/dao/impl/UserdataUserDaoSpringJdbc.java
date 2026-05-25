@@ -24,7 +24,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public UserdataUserEntity createUser(UserdataUserEntity user) {
+    public UserdataUserEntity create(UserdataUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -34,7 +34,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
                     Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setString(1, user.getUsername());
-                ps.setObject(2, user.getCurrency().name());
+                ps.setString(2, user.getCurrency().name());
                 ps.setString(3, user.getFirstname());
                 ps.setString(4, user.getSurname());
                 ps.setString(5, user.getFullName());
@@ -82,7 +82,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     public void delete(UserdataUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(
-            "DELETE * FROM \"user\" WHERE id = ?",
+            "DELETE FROM \"user\" WHERE id = ?",
             user.getId()
         );
     }

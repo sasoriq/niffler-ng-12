@@ -19,10 +19,12 @@ public class AuthAuthorityEntityRowMapper implements RowMapper<AuthAuthorityEnti
 
     @Override
     public AuthAuthorityEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-        AuthAuthorityEntity entity = new AuthAuthorityEntity();
-        entity.setId(rs.getObject("id", UUID.class));
-        entity.setUser(rs.getObject("user_id", AuthUserEntity.class));
-        entity.setAuthority(Authority.valueOf(rs.getString("authority")));
-        return entity;
+        AuthAuthorityEntity authority = new AuthAuthorityEntity();
+        authority.setId(rs.getObject("id", UUID.class));
+        AuthUserEntity user = new AuthUserEntity();
+        user.setId(rs.getObject("user_id", UUID.class));
+        authority.setUser(user);
+        authority.setAuthority(Authority.valueOf(rs.getString("authority")));
+        return authority;
     }
 }

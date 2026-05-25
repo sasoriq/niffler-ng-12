@@ -43,7 +43,7 @@ public class SpendDbClient {
         return transaction(connection -> {
             CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
             return CategoryJson.fromEntity(
-                new CategoryDaoJdbc(connection).updateCategory(categoryEntity)
+                new CategoryDaoJdbc(connection).update(categoryEntity)
             );
         }, CFG.spendJdbcUrl());
     }

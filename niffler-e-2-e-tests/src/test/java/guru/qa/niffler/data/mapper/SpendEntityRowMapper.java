@@ -22,12 +22,12 @@ public class SpendEntityRowMapper implements RowMapper<SpendEntity> {
     public SpendEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         SpendEntity entity = new SpendEntity();
         entity.setId(rs.getObject("s_id", UUID.class));
-        entity.setUsername("s_username");
+        entity.setUsername(rs.getString("s_username"));
         entity.setCurrency(CurrencyValues.valueOf(rs.getString("s_currency")));
         entity.setSpendDate(Date.valueOf(rs.getObject("s_spend_date", LocalDate.class)));
         entity.setAmount(rs.getDouble("s_amount"));
         entity.setDescription(rs.getString("s_description"));
-        entity.setCategory(CategoryEntityRowMapper.instance.mapRow(rs, 1));
+        entity.setCategory(CategoryEntityRowMapper.instance.mapRow(rs, rowNum));
         return entity;
     }
 }

@@ -24,11 +24,11 @@ public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
     public void create(List<AuthAuthorityEntity> authorities) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.batchUpdate(
-            "INSERT INTO 'authority' (user_id, authority) VALUES (?, ?)",
+            "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
             new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(@NonNull PreparedStatement ps, int i) throws SQLException {
-                    ps.setObject(1, authorities.get(i).getUser());
+                    ps.setObject(1, authorities.get(i).getUser().getId());
                     ps.setString(2, authorities.get(i).getAuthority().name());
                 }
 
@@ -45,7 +45,7 @@ public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
     public List<AuthAuthorityEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return jdbcTemplate.query(
-            "SELECT * FROM 'authority'",
+            "SELECT * FROM \"authority\"",
             AuthAuthorityEntityRowMapper.instance
         );
     }

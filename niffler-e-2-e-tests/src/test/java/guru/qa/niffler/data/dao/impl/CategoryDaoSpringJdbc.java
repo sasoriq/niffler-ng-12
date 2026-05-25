@@ -29,7 +29,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(
-                "INSERT INTO category (username, name, archived) " +
+                "INSERT INTO \"category\" (username, name, archived) " +
                     "VALUES (?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
             );
@@ -44,26 +44,26 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryById(UUID id) {
+    public Optional<CategoryEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return Optional.ofNullable(jdbcTemplate.queryForObject(
             "SELECT c.id AS c_id, " +
                 "c.name AS c_name, " +
                 "c.username AS c_username, " +
-                "c.archived AS c_archived FROM category WHERE id = ?",
+                "c.archived AS c_archived FROM \"category\" c WHERE id = ?",
             CategoryEntityRowMapper.instance,
             id
         ));
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
+    public Optional<CategoryEntity> findByUsernameAndCategoryName(String username, String categoryName) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return Optional.ofNullable(jdbcTemplate.queryForObject(
             "SELECT c.id AS c_id, " +
                 "c.name AS c_name, " +
                 "c.username AS c_username, " +
-                "c.archived AS c_archived FROM category WHERE username = ? AND name = ?",
+                "c.archived AS c_archived FROM \"category\" c WHERE username = ? AND name = ?",
             CategoryEntityRowMapper.instance,
             username,
             categoryName
@@ -71,13 +71,13 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
-    public List<CategoryEntity> findAllByUsername(String username) {
+    public List<CategoryEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return jdbcTemplate.query(
             "SELECT c.id AS c_id, " +
                 "c.name AS c_name, " +
                 "c.username AS c_username, " +
-                "c.archived AS c_archived FROM category WHERE username = ?",
+                "c.archived AS c_archived FROM \"category\" c WHERE username = ?",
             CategoryEntityRowMapper.instance,
             username
         );
@@ -90,16 +90,16 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
             "SELECT c.id AS c_id, " +
                 "c.name AS c_name, " +
                 "c.username AS c_username, " +
-                "c.archived AS c_archived FROM category",
+                "c.archived AS c_archived FROM \"category\" c",
             CategoryEntityRowMapper.instance
         );
     }
 
     @Override
-    public CategoryEntity updateCategory(CategoryEntity category) {
+    public CategoryEntity update(CategoryEntity category) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(
-            "UPDATE category SET name = ?, archived = ? WHERE id = ?",
+            "UPDATE \"category\" SET name = ?, archived = ? WHERE id = ?",
             category.getName(),
             category.isArchived(),
             category.getId()
@@ -108,10 +108,10 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
-    public void deleteCategory(CategoryEntity category) {
+    public void delete(CategoryEntity category) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(
-            "DELETE FROM category WHERE id = ?",
+            "DELETE FROM \"category\" WHERE id = ?",
             category.getId()
         );
     }

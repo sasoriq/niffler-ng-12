@@ -26,9 +26,9 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public AuthUserEntity createUser(AuthUserEntity user) {
+    public AuthUserEntity create(AuthUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "INSERT INTO 'user' (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
+            "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
                 "VALUES (?, ?, ?, ?, ?, ?)",
             Statement.RETURN_GENERATED_KEYS
         )) {
@@ -57,13 +57,12 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public Optional<AuthUserEntity> findUserById(UUID id) {
+    public Optional<AuthUserEntity> findById(UUID id) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "SELECT * FROM 'user' WHERE id = ?"
+            "SELECT * FROM \"user\" WHERE id = ?"
         )) {
             ps.setObject(1, id);
-            ps.execute();
-            try (ResultSet rs = ps.getResultSet()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     AuthUserEntity entity = extractUserEntity(rs);
                     return Optional.of(entity);
@@ -77,33 +76,32 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public List<AuthUserEntity> findAllByUsername(String username) {
-        List<AuthUserEntity> users = new ArrayList<>();
+    public Optional<AuthUserEntity> findByUsername(String username) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "SELECT * FROM 'user' WHERE username = ?"
+            "SELECT * FROM \"user\" WHERE username = ?"
         )) {
             ps.setString(1, username);
-            ps.execute();
 
-            try (ResultSet rs = ps.getResultSet()) {
-                while (rs.next()) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
                     AuthUserEntity entity = extractUserEntity(rs);
-                    users.add(entity);
+                    return Optional.of(entity);
+                } else {
+                    return Optional.empty();
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return users;
     }
 
     @Override
     public List<AuthUserEntity> findAll() {
         List<AuthUserEntity> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
-            "SELECT * FROM 'user'"
+            "SELECT * FROM \"user\""
         )) {
-            try (ResultSet rs = ps.getResultSet()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     AuthUserEntity entity = extractUserEntity(rs);
                     users.add(entity);
@@ -116,9 +114,9 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public void deleteUser(AuthUserEntity user) {
+    public void delete(AuthUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "DELETE FROM 'user' WHERE id = ?"
+            "DELETE FROM \"user\" WHERE id = ?"
         )) {
             ps.setObject(1, user.getId());
             ps.executeUpdate();
@@ -129,6 +127,7 @@ public class AuthUserDaoJdbc implements AuthUserDao {
 
     private AuthUserEntity extractUserEntity(ResultSet rs) throws SQLException {
         AuthUserEntity entity = new AuthUserEntity();
+        entity.setId(rs.getObject("id", UUID.class));
         entity.setUsername(rs.getString("username"));
         entity.setPassword(rs.getString("password"));
         entity.setEnabled(rs.getBoolean("enabled"));

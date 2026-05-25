@@ -30,7 +30,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
         jdbcTemplate.update(
             con -> {
                 PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO spend (username, spend_date, currency, amount, description, category_id) " +
+                    "INSERT INTO \"spend\" (username, spend_date, currency, amount, description, category_id) " +
                     "VALUES (?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, spend.getUsername());
@@ -48,7 +48,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
-    public Optional<SpendEntity> findSpendById(UUID id) {
+    public Optional<SpendEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return Optional.ofNullable(jdbcTemplate.queryForObject(
             "SELECT s.id AS s_id, " +
@@ -59,14 +59,14 @@ public class SpendDaoSpringJdbc implements SpendDao {
                 "s.description AS s_description, " +
                 "c.id AS c_id, c.name AS c_name, " +
                 "c.username AS c_username, c.archived AS c_archived " +
-                "FROM spend s JOIN category c ON s.category_id = c.id WHERE s.id = ?",
+                "FROM \"spend\" s JOIN \"category\" c ON s.category_id = c.id WHERE s.id = ?",
             SpendEntityRowMapper.instance,
             id
         ));
     }
 
     @Override
-    public List<SpendEntity> findAllByUsername(String username) {
+    public List<SpendEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return jdbcTemplate.query(
             "SELECT s.id AS s_id, " +
@@ -77,7 +77,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
                 "s.description AS s_description, " +
                 "c.id AS c_id, c.name AS c_name, " +
                 "c.username AS c_username, c.archived AS c_archived " +
-                "FROM spend s JOIN category c ON s.category_id = c.id WHERE s.username = ?",
+                "FROM \"spend\" s JOIN \"category\" c ON s.category_id = c.id WHERE s.username = ?",
             SpendEntityRowMapper.instance,
             username
         );
@@ -95,16 +95,16 @@ public class SpendDaoSpringJdbc implements SpendDao {
                 "s.description AS s_description, " +
                 "c.id AS c_id, c.name AS c_name, " +
                 "c.username AS c_username, c.archived AS c_archived " +
-                "FROM spend s JOIN category c ON s.category_id = c.id",
+                "FROM \"spend\" s JOIN \"category\" c ON s.category_id = c.id",
             SpendEntityRowMapper.instance
         );
     }
 
     @Override
-    public void deleteSpend(SpendEntity spend) {
+    public void delete(SpendEntity spend) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(
-            "DELETE FROM spend WHERE id = ?",
+            "DELETE FROM \"spend\" WHERE id = ?",
             spend.getId()
         );
     }

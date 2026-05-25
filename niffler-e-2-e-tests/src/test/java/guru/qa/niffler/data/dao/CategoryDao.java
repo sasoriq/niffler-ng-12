@@ -9,15 +9,15 @@ import java.util.UUID;
 public interface CategoryDao {
     CategoryEntity create(CategoryEntity category);
 
-    Optional<CategoryEntity> findCategoryById(UUID id);
+    Optional<CategoryEntity> findById(UUID id);
 
-    Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName);
+    Optional<CategoryEntity> findByUsernameAndCategoryName(String username, String categoryName);
 
-    List<CategoryEntity> findAllByUsername(String username);
+    List<CategoryEntity> findByUsername(String username);
 
     List<CategoryEntity> findAll();
 
-    CategoryEntity updateCategory(CategoryEntity category);
+    CategoryEntity update(CategoryEntity category);
 
-    void deleteCategory(CategoryEntity category);
+    void delete(CategoryEntity category);
 }

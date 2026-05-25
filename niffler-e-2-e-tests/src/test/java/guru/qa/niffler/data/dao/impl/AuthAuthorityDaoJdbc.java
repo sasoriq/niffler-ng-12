@@ -25,13 +25,13 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     @Override
     public void create(List<AuthAuthorityEntity> authorities) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "INSERT INTO 'authority' (user_id, authority) " +
+            "INSERT INTO \"authority\" (user_id, authority) " +
                 "VALUES (?, ?)",
             Statement.RETURN_GENERATED_KEYS
         )) {
             for (AuthAuthorityEntity authority : authorities) {
-                ps.setObject(1, authority.getUser());
-                ps.setObject(2, authority.getAuthority());
+                ps.setObject(1, authority.getUser().getId());
+                ps.setString(2, authority.getAuthority().name());
                 ps.executeUpdate();
 
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -49,16 +49,18 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     public List<AuthAuthorityEntity> findAll() {
         List<AuthAuthorityEntity> authorities = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
-            "SELECT * from 'authority'"
+            "SELECT * from \"authority\""
         )) {
             ps.execute();
             try (ResultSet rs = ps.getResultSet()) {
                 while (rs.next()) {
-                    AuthAuthorityEntity entity = new AuthAuthorityEntity();
-                    entity.setId(rs.getObject("id", UUID.class));
-                    entity.setUser(rs.getObject("user_id", AuthUserEntity.class));
-                    entity.setAuthority(Authority.valueOf(rs.getString("authority")));
-                    authorities.add(entity);
+                    AuthAuthorityEntity authority = new AuthAuthorityEntity();
+                    authority.setId(rs.getObject("id", UUID.class));
+                    AuthUserEntity user = new AuthUserEntity();
+                    user.setId(rs.getObject("user_id", UUID.class));
+                    authority.setUser(user);
+                    authority.setAuthority(Authority.valueOf(rs.getString("authority")));
+                    authorities.add(authority);
                 }
             }
         } catch (SQLException e) {
