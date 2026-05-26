@@ -29,7 +29,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
                 PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photoSmall) " +
+                    "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photo_small) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
                 );
