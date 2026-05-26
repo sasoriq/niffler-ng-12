@@ -1,11 +1,11 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
 import guru.qa.niffler.model.CurrencyValues;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,17 +17,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static guru.qa.niffler.data.tpl.Connections.holder;
+
 public class SpendDaoJdbc implements SpendDao {
 
-    private final Connection connection;
-
-    public SpendDaoJdbc(Connection connection) {
-        this.connection = connection;
-    }
+    private static final Config CFG = Config.getInstance();
 
     @Override
     public SpendEntity create(SpendEntity spend) {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "INSERT INTO \"spend\" (username, spend_date, currency, amount, description, category_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?)",
             Statement.RETURN_GENERATED_KEYS
@@ -58,7 +56,7 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public Optional<SpendEntity> findById(UUID id) {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "SELECT s.id AS s_id, " +
                 "s.username AS s_username, " +
                 "s.currency AS s_currency, " +
@@ -86,7 +84,7 @@ public class SpendDaoJdbc implements SpendDao {
     @Override
     public List<SpendEntity> findByUsername(String username) {
         List<SpendEntity> spends = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "SELECT s.id AS s_id, " +
                 "s.username AS s_username, " +
                 "s.currency AS s_currency, " +
@@ -114,7 +112,7 @@ public class SpendDaoJdbc implements SpendDao {
     @Override
     public List<SpendEntity> findAll() {
         List<SpendEntity> spends = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "SELECT s.id AS s_id, " +
                 "s.username AS s_username, " +
                 "s.currency AS s_currency, " +
@@ -139,7 +137,7 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public void delete(SpendEntity spend) {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "DELETE FROM \"spend\" WHERE id = ?"
         )) {
             ps.setObject(1, spend.getId());
