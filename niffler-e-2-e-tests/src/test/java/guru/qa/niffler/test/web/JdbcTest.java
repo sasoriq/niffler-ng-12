@@ -13,7 +13,7 @@ import java.util.Date;
 public class JdbcTest {
 
     @Test
-    void txTest() {
+    void spendTest() {
         SpendDbClient spendDbClient = new SpendDbClient();
 
         SpendJson spend = spendDbClient.createSpend(
@@ -36,12 +36,66 @@ public class JdbcTest {
     }
 
     @Test
-    void xaTxTesr() {
+    void userSpringXaTxTest() {
         UsersDbClient usersDbClient = new UsersDbClient();
-        UserdataUserJson user = usersDbClient.createUserSpringJdbc(
+        UserdataUserJson user = usersDbClient.createUserSpringJdbcXaTx(
             new UserdataUserJson(
                 null,
-                "user-2",
+                "person-1",
+                CurrencyValues.RUB,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+        );
+        System.out.println(user);
+    }
+
+    @Test
+    void userSpringTxTest() {
+        UsersDbClient usersDbClient = new UsersDbClient();
+        UserdataUserJson user = usersDbClient.createUserSpringJdbcTx(
+            new UserdataUserJson(
+                null,
+                "person-2",
+                CurrencyValues.RUB,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+        );
+        System.out.println(user);
+    }
+
+    @Test
+    void userXaTxTest() {
+        UsersDbClient usersDbClient = new UsersDbClient();
+        UserdataUserJson user = usersDbClient.createUserJdbcXaTx(
+            new UserdataUserJson(
+                null,
+                "person-3",
+                CurrencyValues.RUB,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+        );
+        System.out.println(user);
+    }
+
+    @Test
+    void userTxTest() {
+        UsersDbClient usersDbClient = new UsersDbClient();
+        UserdataUserJson user = usersDbClient.createUserJdbcTx(
+            new UserdataUserJson(
+                null,
+                "person-4",
                 CurrencyValues.RUB,
                 null,
                 null,
