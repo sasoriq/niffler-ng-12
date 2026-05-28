@@ -10,10 +10,12 @@ import guru.qa.niffler.data.dao.impl.AuthUserDaoJdbc;
 import guru.qa.niffler.data.dao.impl.AuthUserDaoSpringJdbc;
 import guru.qa.niffler.data.dao.impl.UserdataUserDaoJdbc;
 import guru.qa.niffler.data.dao.impl.UserdataUserDaoSpringJdbc;
-import guru.qa.niffler.data.entity.AuthAuthorityEntity;
-import guru.qa.niffler.data.entity.AuthUserEntity;
-import guru.qa.niffler.data.entity.Authority;
-import guru.qa.niffler.data.entity.UserdataUserEntity;
+import guru.qa.niffler.data.entity.auth.AuthAuthorityEntity;
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
+import guru.qa.niffler.data.entity.auth.Authority;
+import guru.qa.niffler.data.entity.userdata.UserdataUserEntity;
+import guru.qa.niffler.data.repository.AuthUserRepository;
+import guru.qa.niffler.data.repository.impl.AuthUserRepositoryJdbc;
 import guru.qa.niffler.data.tpl.DataSources;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.UserdataUserJson;
@@ -35,7 +37,7 @@ public class UsersDbClient {
     private final AuthAuthorityDao authAuthorityDaoSpring = new AuthAuthorityDaoSpringJdbc();
     private final UserdataUserDao userdataUserDaoSpring = new UserdataUserDaoSpringJdbc();
 
-    private final AuthUserDao authUserDao = new AuthUserDaoJdbc();
+    private final AuthUserRepository authUserDao = new AuthUserRepositoryJdbc();
     private final AuthAuthorityDao authAuthorityDao = new AuthAuthorityDaoJdbc();
     private final UserdataUserDao userdataUserDao = new UserdataUserDaoJdbc();
 
@@ -158,19 +160,18 @@ public class UsersDbClient {
             authUser.setAccountNonExpired(true);
             authUser.setAccountNonLocked(true);
             authUser.setCredentialsNonExpired(true);
+            authUser.setAuthorities(
+                Arrays.stream(Authority.values()).map(
+                    authority -> {
+                        AuthAuthorityEntity userAuthority = new AuthAuthorityEntity();
+                        userAuthority.setAuthority(authority);
+                        userAuthority.setUser(authUser);
+                        return userAuthority;
+                    }
+                ).toList()
+            );
 
             authUserDao.create(authUser);
-
-            List<AuthAuthorityEntity> authorities = Arrays.stream(Authority.values()).map(
-                authority -> {
-                    AuthAuthorityEntity userAuthority = new AuthAuthorityEntity();
-                    userAuthority.setAuthority(authority);
-                    userAuthority.setUser(authUser);
-                    return userAuthority;
-                }
-            ).toList();
-
-            authAuthorityDao.create(authorities);
             return null;
         });
 

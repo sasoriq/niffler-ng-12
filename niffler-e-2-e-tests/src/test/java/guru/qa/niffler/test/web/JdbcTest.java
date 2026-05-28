@@ -22,7 +22,7 @@ public class JdbcTest {
                 new Date(),
                 new CategoryJson(
                     null,
-                    "name",
+                    "name5",
                     "duck",
                     false
                 ),
@@ -41,7 +41,7 @@ public class JdbcTest {
         UserdataUserJson user = usersDbClient.createUserSpringJdbcXaTx(
             new UserdataUserJson(
                 null,
-                "person-1",
+                "person-5",
                 CurrencyValues.RUB,
                 null,
                 null,
