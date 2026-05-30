@@ -22,7 +22,7 @@ public class JdbcTest {
                 new Date(),
                 new CategoryJson(
                     null,
-                    "name",
+                    "name5",
                     "duck",
                     false
                 ),
@@ -38,10 +38,10 @@ public class JdbcTest {
     @Test
     void userSpringXaTxTest() {
         UsersDbClient usersDbClient = new UsersDbClient();
-        UserdataUserJson user = usersDbClient.createUserSpringJdbcXaTx(
+        UserdataUserJson user = usersDbClient.createUser(
             new UserdataUserJson(
                 null,
-                "person-1",
+                "person-5",
                 CurrencyValues.RUB,
                 null,
                 null,
@@ -54,48 +54,12 @@ public class JdbcTest {
     }
 
     @Test
-    void userSpringTxTest() {
+    void userJdbcXaTxTest() {
         UsersDbClient usersDbClient = new UsersDbClient();
-        UserdataUserJson user = usersDbClient.createUserSpringJdbcTx(
+        UserdataUserJson user = usersDbClient.createUserJdbc(
             new UserdataUserJson(
                 null,
-                "person-2",
-                CurrencyValues.RUB,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-        );
-        System.out.println(user);
-    }
-
-    @Test
-    void userXaTxTest() {
-        UsersDbClient usersDbClient = new UsersDbClient();
-        UserdataUserJson user = usersDbClient.createUserJdbcXaTx(
-            new UserdataUserJson(
-                null,
-                "person-3",
-                CurrencyValues.RUB,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-        );
-        System.out.println(user);
-    }
-
-    @Test
-    void userTxTest() {
-        UsersDbClient usersDbClient = new UsersDbClient();
-        UserdataUserJson user = usersDbClient.createUserJdbcTx(
-            new UserdataUserJson(
-                null,
-                "person-4",
+                "person-12",
                 CurrencyValues.RUB,
                 null,
                 null,
