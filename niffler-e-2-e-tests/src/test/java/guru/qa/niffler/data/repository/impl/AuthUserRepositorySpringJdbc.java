@@ -6,6 +6,7 @@ import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.repository.AuthUserRepository;
 import guru.qa.niffler.data.tpl.DataSources;
+import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,7 +57,7 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository, ResultS
             "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
             new BatchPreparedStatementSetter() {
                 @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                public void setValues(@NonNull PreparedStatement ps, int i) throws SQLException {
                     ps.setObject(1, user.getId());
                     ps.setString(2, user.getAuthorities().get(i).getAuthority().name());
                 }
