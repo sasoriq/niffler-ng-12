@@ -5,6 +5,13 @@ import guru.qa.niffler.data.entity.auth.AuthAuthorityEntity;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.repository.AuthUserRepository;
+import guru.qa.niffler.data.tpl.DataSources;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,58 +21,59 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static guru.qa.niffler.data.tpl.Connections.holder;
-
-public class AuthUserRepositoryJdbc implements AuthUserRepository {
+public class AuthUserRepositorySpringJdbc implements AuthUserRepository, ResultSetExtractor<AuthUserEntity> {
 
     private static final Config CFG = Config.getInstance();
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
-        try (PreparedStatement userPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-            "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
-                "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-             PreparedStatement authorityPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-                "INSERT INTO \"authority\" (user_id, authority) " +
-                    "VALUES (?, ?)"
-            )
-        ) {
-            userPs.setString(1, user.getUsername());
-            userPs.setString(2, user.getPassword());
-            userPs.setBoolean(3, user.getEnabled());
-            userPs.setBoolean(4, user.getAccountNonExpired());
-            userPs.setBoolean(5, user.getAccountNonLocked());
-            userPs.setBoolean(6, user.getCredentialsNonExpired());
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        KeyHolder kh = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+                PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+                );
 
-            userPs.executeUpdate();
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getPassword());
+                ps.setBoolean(3, user.getEnabled());
+                ps.setBoolean(4, user.getAccountNonExpired());
+                ps.setBoolean(5, user.getAccountNonLocked());
+                ps.setBoolean(6, user.getCredentialsNonExpired());
+                return ps;
+            },
+            kh);
+        final UUID generatedKey = (UUID) Objects.requireNonNull(kh.getKeys()).get("id");
+        user.setId(generatedKey);
 
-            final UUID generatedKey;
-            try (ResultSet rs = userPs.getGeneratedKeys()) {
-                if (rs.next()) {
-                    generatedKey = rs.getObject("id", UUID.class);
-                } else {
-                    throw new SQLException("Can`t find id in ResultSet");
+        jdbcTemplate.batchUpdate(
+            "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
+            new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setObject(1, user.getId());
+                    ps.setString(2, user.getAuthorities().get(i).getAuthority().name());
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return user.getAuthorities().size();
                 }
             }
-            user.setId(generatedKey);
-            for (AuthAuthorityEntity authority : user.getAuthorities()) {
-                authorityPs.setObject(1, generatedKey);
-                authorityPs.setString(2, authority.getAuthority().name());
-                authorityPs.addBatch();
-            }
-            authorityPs.executeBatch();
-            return user;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        );
+        return user;
     }
 
     @Override
     public Optional<AuthUserEntity> findById(UUID id) {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        return Optional.ofNullable(jdbcTemplate.query(
             "SELECT " +
                 "u.id AS u_id, " +
                 "u.username AS username, " +
@@ -77,46 +85,37 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                 "a.id AS a_id, " +
                 "a.user_id AS a_user_id, " +
                 "a.authority AS authority " +
-                "FROM \"user\" u JOIN \"authority\" a ON u.id = a.user_id WHERE u.id = ?"
-        )) {
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return Optional.ofNullable(extractData(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+                "FROM \"user\" u JOIN \"authority\" a ON u.id = a.user_id WHERE u.id = ?",
+                this,
+            id
+        ));
     }
 
     @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        return Optional.ofNullable(jdbcTemplate.query(
             "SELECT " +
-                "u.id AS u_id, " +
-                "u.username AS username, " +
-                "u.password AS password, " +
-                "u.enabled AS enabled, " +
-                "u.account_non_expired AS account_non_expired, " +
-                "u.account_non_locked AS account_non_locked, " +
-                "u.credentials_non_expired AS credentials_non_expired, " +
-                "a.id AS a_id, " +
-                "a.user_id AS a_user_id, " +
-                "a.authority AS authority " +
-                "FROM \"user\" u JOIN \"authority\" a ON u.id = a.user_id WHERE u.username = ?"
-        )) {
-            ps.setString(1, username);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                return Optional.ofNullable(extractData(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+            "u.id AS u_id, " +
+            "u.username AS username, " +
+            "u.password AS password, " +
+            "u.enabled AS enabled, " +
+            "u.account_non_expired AS account_non_expired, " +
+            "u.account_non_locked AS account_non_locked, " +
+            "u.credentials_non_expired AS credentials_non_expired, " +
+            "a.id AS a_id, " +
+            "a.user_id AS a_user_id, " +
+            "a.authority AS authority " +
+            "FROM \"user\" u JOIN \"authority\" a ON u.id = a.user_id WHERE username = ?",
+            this,
+            username
+        ));
     }
 
     @Override
     public List<AuthUserEntity> findAll() {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        return jdbcTemplate.query(
             "SELECT " +
                 "u.id AS u_id, " +
                 "u.username AS username, " +
@@ -128,29 +127,22 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                 "a.id AS a_id, " +
                 "a.user_id AS a_user_id, " +
                 "a.authority AS authority " +
-                "FROM \"user\" u JOIN \"authority\" a ON u.id = a.user_id"
-        )) {
-            try (ResultSet rs = ps.executeQuery()) {
-                return extractAllData(rs);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+                "FROM \"user\" u JOIN \"authority\" a ON u.id = a.user_id",
+            this::extractAllData
+        );
     }
 
     @Override
     public void delete(AuthUserEntity user) {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-            "DELETE FROM \"user\" WHERE id = ?"
-        )) {
-            ps.setObject(1, user.getId());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        jdbcTemplate.update(
+            "DELETE FROM \"user\" WHERE id = ?",
+            user.getId()
+        );
     }
 
-    private AuthUserEntity extractData(ResultSet rs) throws SQLException {
+    @Override
+    public AuthUserEntity extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<UUID, AuthUserEntity> userMap = new HashMap<>();
         UUID userId = null;
         while (rs.next()) {
@@ -162,13 +154,14 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                     throw new RuntimeException(e);
                 }
             });
+
             AuthAuthorityEntity authority = extractAuthorityEntity(rs, user);
             user.getAuthorities().add(authority);
         }
-        return userMap.get(userId) ;
+        return userMap.get(userId);
     }
 
-    private List<AuthUserEntity> extractAllData(ResultSet rs) throws SQLException {
+    private List<AuthUserEntity> extractAllData(ResultSet rs) throws SQLException, DataAccessException {
         Map<UUID, AuthUserEntity> userMap = new HashMap<>();
         while (rs.next()) {
             UUID userId = rs.getObject("u_id", UUID.class);
@@ -178,7 +171,9 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }
+            );
+
             AuthAuthorityEntity authority = extractAuthorityEntity(rs, user);
             user.getAuthorities().add(authority);
         }
