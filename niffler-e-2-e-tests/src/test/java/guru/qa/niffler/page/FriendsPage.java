@@ -51,7 +51,7 @@ public class FriendsPage {
     public void checkOutcomeInvitationBePresent(String outcome) {
         allPeopleTableRows.shouldHave(sizeGreaterThan(0));
         outcomeRequestRow(outcome).shouldBe(visible);
-        incomeRequestRow(outcome).$$("span")
+        outcomeRequestRow(outcome).$$("span")
             .findBy(text("Waiting..."))
             .shouldBe(visible);
     }

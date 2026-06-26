@@ -102,8 +102,8 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterEachCallbac
     @SuppressWarnings("unchecked")
     @Override
     public StaticUser resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return ((Map<Integer, StaticUser>) extensionContext.getStore(NAMESPACE)
+        return ((Map<Integer, StaticUserWithType>) extensionContext.getStore(NAMESPACE)
                 .get(extensionContext.getUniqueId(), Map.class))
-                .get(parameterContext.getIndex());
+                .get(parameterContext.getIndex()).user();
     }
 }
