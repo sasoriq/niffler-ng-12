@@ -3,7 +3,6 @@ package guru.qa.niffler.jupiter.extension;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.service.SpendApiClient;
 import guru.qa.niffler.service.SpendClient;
 import guru.qa.niffler.service.SpendDbClient;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -22,7 +21,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
 
 
   @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
+  public void beforeEach(ExtensionContext context) {
     AnnotationSupport.findAnnotation(
         context.getRequiredTestMethod(),
         Spending.class
