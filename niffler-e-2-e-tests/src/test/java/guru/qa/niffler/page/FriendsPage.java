@@ -35,8 +35,12 @@ public class FriendsPage {
         friendRequestsTitle.shouldBe(visible);
         requestsTableRows.shouldHave(sizeGreaterThan(0));
         incomeRequestRow(income).shouldBe(visible);
-        incomeRequestRow(income).$$("button").findBy(text("Accept"));
-        incomeRequestRow(income).$$("button").findBy(text("Decline"));
+        incomeRequestRow(income).$$("button")
+            .findBy(text("Accept"))
+            .shouldBe(visible);
+        incomeRequestRow(income).$$("button")
+            .findBy(text("Decline"))
+            .shouldBe(visible);
     }
 
     public FriendsPage navigateToAllPeopleTab() {
@@ -47,7 +51,9 @@ public class FriendsPage {
     public void checkOutcomeInvitationBePresent(String outcome) {
         allPeopleTableRows.shouldHave(sizeGreaterThan(0));
         outcomeRequestRow(outcome).shouldBe(visible);
-        incomeRequestRow(outcome).$$("span").findBy(text("Waiting..."));
+        incomeRequestRow(outcome).$$("span")
+            .findBy(text("Waiting..."))
+            .shouldBe(visible);
     }
 
     private SelenideElement friendRow(String name) {
