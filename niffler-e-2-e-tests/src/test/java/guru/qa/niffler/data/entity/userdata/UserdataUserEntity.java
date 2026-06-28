@@ -2,21 +2,28 @@ package guru.qa.niffler.data.entity.userdata;
 
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserdataUserJson;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -49,6 +56,25 @@ public class UserdataUserEntity implements Serializable {
 
     @Column(name = "photo_small", columnDefinition = "bytea")
     private byte[] photoSmall;
+
+    @OneToMany(mappedBy = "requester", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendshipEntity> friendshipRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "addressee", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendshipEntity> friendshipAddressees = new ArrayList<>();
+
+    public void addFriends(FriendshipStatus status, UserdataUserEntity... friends) {
+        List<FriendshipEntity> friendshipEntities = Stream.of(friends)
+            .map(f -> {
+                FriendshipEntity fe = new FriendshipEntity();
+                fe.setRequester(this);
+                fe.setAddressee(f);
+                fe.setStatus(status);
+                fe.setCreatedDate(new Date());
+                return fe;
+            }).toList();
+        this.friendshipRequests.addAll(friendshipEntities);
+    }
 
     @Override
     public final boolean equals(Object o) {
