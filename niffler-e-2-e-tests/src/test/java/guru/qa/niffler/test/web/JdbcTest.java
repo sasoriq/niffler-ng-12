@@ -40,7 +40,7 @@ public class JdbcTest {
     }
 
     @ValueSource(strings = {
-        "person-18"
+        "person-20"
     })
     @ParameterizedTest
     void userSpringXaTxTest(String username) {
@@ -49,5 +49,6 @@ public class JdbcTest {
 
         usersDbClient.addIncomeInvitation(user, 1);
         usersDbClient.addOutcomeInvitation(user, 1);
+        usersDbClient.addFriend(user, 1);
     }
 }
