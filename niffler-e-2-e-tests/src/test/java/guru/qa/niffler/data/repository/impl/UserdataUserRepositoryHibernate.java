@@ -66,11 +66,14 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
 
     @Override
     public List<UserdataUserEntity> findAll() {
-        return List.of();
+        return entityManager
+            .createQuery("select u from UserdataUserEntity", UserdataUserEntity.class)
+            .getResultList();
     }
 
     @Override
     public void delete(UserdataUserEntity user) {
-
+        entityManager.joinTransaction();
+        entityManager.remove(user);
     }
 }
