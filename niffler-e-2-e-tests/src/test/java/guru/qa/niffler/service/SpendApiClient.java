@@ -25,7 +25,7 @@ public class SpendApiClient implements SpendClient {
   private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
   @Override
-  public SpendJson createSpending(SpendJson spending) {
+  public SpendJson createSpend(SpendJson spending) {
     try {
       Response<SpendJson> response = spendApi.addSpend(spending)
           .execute();
@@ -42,8 +42,14 @@ public class SpendApiClient implements SpendClient {
     throw new UnsupportedOperationException("Not implemented");
   }
 
-  @Override
-  public Optional<CategoryJson> findByUsernameAndName(String username, String category) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
+    @Override
+    public SpendJson updateSpend(SpendJson spend) {
+        return null;
+    }
+
+    @Override
+    public CategoryJson updateCategory(CategoryJson category) {
+        return null;
+    }
+
 }

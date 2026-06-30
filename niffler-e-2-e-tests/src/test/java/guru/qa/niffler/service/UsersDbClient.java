@@ -9,14 +9,11 @@ import guru.qa.niffler.data.repository.AuthUserRepository;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
 import guru.qa.niffler.data.repository.impl.AuthUserRepositoryHibernate;
 import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryHibernate;
-import guru.qa.niffler.data.tpl.DataSources;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserdataUserJson;
-import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Arrays;
 
@@ -30,12 +27,6 @@ public class UsersDbClient implements UsersClient {
     private final AuthUserRepository authUserRep = new AuthUserRepositoryHibernate();
     private final UserdataUserRepository userdataUserRep = new UserdataUserRepositoryHibernate();
 
-    private final TransactionTemplate txTemplate = new TransactionTemplate(
-            new JdbcTransactionManager(
-                DataSources.dataSource(CFG.authJdbcUrl())
-            )
-    );
-
     private final XaTransactionTemplate xaTransactionTemplate = new XaTransactionTemplate(
         CFG.authJdbcUrl(),
         CFG.userdataJdbcUrl()
@@ -44,7 +35,7 @@ public class UsersDbClient implements UsersClient {
     @Override
     public UserdataUserJson createUser(String username) {
         return xaTransactionTemplate.execute(() ->
-            UserdataUserJson.fromEntity(createUserEntity(username))
+            UserdataUserJson.fromEntity(persistUser(username))
         );
     }
 
@@ -57,7 +48,7 @@ public class UsersDbClient implements UsersClient {
 
             for (int i = 0; i < count; i++) {
                 xaTransactionTemplate.execute(() -> {
-                    UserdataUserEntity addressee = createRandomUserEntity();
+                    UserdataUserEntity addressee = persistRandomUser();
                     userdataUserRep.addIncomeInvitation(targetEntity, addressee);
                     return null;
                 });
@@ -74,7 +65,7 @@ public class UsersDbClient implements UsersClient {
 
             for (int i = 0; i < count; i++) {
                 xaTransactionTemplate.execute(() -> {
-                    UserdataUserEntity addressee = createRandomUserEntity();
+                    UserdataUserEntity addressee = persistRandomUser();
                     userdataUserRep.addOutcomeInvitation(targetEntity, addressee);
                     return null;
                 });
@@ -91,7 +82,7 @@ public class UsersDbClient implements UsersClient {
 
             for (int i = 0; i < count; i++) {
                 xaTransactionTemplate.execute(() -> {
-                    UserdataUserEntity addressee = createRandomUserEntity();
+                    UserdataUserEntity addressee = persistRandomUser();
                     userdataUserRep.addFriend(targetEntity, addressee);
                     return null;
                 });
@@ -99,24 +90,24 @@ public class UsersDbClient implements UsersClient {
         }
     }
 
-    private UserdataUserEntity createUserEntity(String username) {
-        AuthUserEntity authUser = authUserEntity(username);
+    private UserdataUserEntity persistUser(String username) {
+        AuthUserEntity authUser = createAuthUserEntity(username);
         authUserRep.create(authUser);
-        return userdataUserRep.create(userEntity(username));
+        return userdataUserRep.create(createUserdataUserEntity(username));
     }
 
-    private UserdataUserEntity createRandomUserEntity() {
-        return createUserEntity(randomUsername());
+    private UserdataUserEntity persistRandomUser() {
+        return persistUser(randomUsername());
     }
 
-    private UserdataUserEntity userEntity(String username) {
+    private UserdataUserEntity createUserdataUserEntity(String username) {
         UserdataUserEntity entity = new UserdataUserEntity();
         entity.setUsername(username);
         entity.setCurrency(CurrencyValues.RUB);
         return entity;
     }
 
-    public AuthUserEntity authUserEntity(String username) {
+    public AuthUserEntity createAuthUserEntity(String username) {
         AuthUserEntity authUser = new AuthUserEntity();
         authUser.setUsername(username);
         authUser.setPassword(pe.encode("12345"));
