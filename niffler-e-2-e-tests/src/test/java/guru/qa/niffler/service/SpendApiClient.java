@@ -50,4 +50,14 @@ public class SpendApiClient implements SpendClient {
         return null;
     }
 
+    @Override
+    public void removeSpend(SpendJson spend) {
+
+    }
+
+    @Override
+    public void removeCategory(CategoryJson category) {
+
+    }
+
 }

@@ -12,4 +12,8 @@ public interface SpendClient {
 
     CategoryJson updateCategory(CategoryJson category);
 
+    void removeSpend(SpendJson spend);
+
+    void removeCategory(CategoryJson category);
+
 }
