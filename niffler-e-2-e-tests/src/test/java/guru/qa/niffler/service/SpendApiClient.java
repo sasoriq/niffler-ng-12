@@ -4,14 +4,12 @@ import guru.qa.niffler.api.SpendApi;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
-import java.util.Optional;
 
 public class SpendApiClient implements SpendClient {
 
