@@ -45,11 +45,14 @@ public class AuthUserRepositoryHibernate implements AuthUserRepository {
 
     @Override
     public List<AuthUserEntity> findAll() {
-        return List.of();
+        return entityManager
+            .createQuery("select u from AuthUserEntity", AuthUserEntity.class)
+            .getResultList();
     }
 
     @Override
     public void delete(AuthUserEntity user) {
-
+        entityManager.joinTransaction();
+        entityManager.remove(user);
     }
 }
