@@ -3,8 +3,8 @@ package guru.qa.niffler.data.repository.impl;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
 import guru.qa.niffler.data.entity.userdata.UserdataUserEntity;
+import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
-import guru.qa.niffler.model.CurrencyValues;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,8 +61,8 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    UserdataUserEntity entity = extractUserdataEntity(rs);
-                    return Optional.of(entity);
+                    UserdataUserEntity entity = UserdataUserEntityRowMapper.instance.mapRow(rs, 1);
+                    return Optional.ofNullable(entity);
                 } else {
                     return Optional.empty();
                 }
@@ -80,8 +80,8 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    UserdataUserEntity entity = extractUserdataEntity(rs);
-                    return Optional.of(entity);
+                    UserdataUserEntity entity = UserdataUserEntityRowMapper.instance.mapRow(rs, 1);
+                    return Optional.ofNullable(entity);
                 } else {
                     return Optional.empty();
                 }
@@ -147,7 +147,7 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
         )) {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    UserdataUserEntity entity = extractUserdataEntity(rs);
+                    UserdataUserEntity entity = UserdataUserEntityRowMapper.instance.mapRow(rs, 1);
                     users.add(entity);
                 }
             }
@@ -168,18 +168,4 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
             throw new RuntimeException(e);
         }
     }
-
-    private UserdataUserEntity extractUserdataEntity(ResultSet rs) throws SQLException {
-        UserdataUserEntity entity = new UserdataUserEntity();
-        entity.setId(rs.getObject("id", UUID.class));
-        entity.setUsername(rs.getString("username"));
-        entity.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-        entity.setFirstname(rs.getString("firstname"));
-        entity.setSurname(rs.getString("surname"));
-        entity.setFullName(rs.getString("full_name"));
-        entity.setPhoto(rs.getBytes("photo"));
-        entity.setPhotoSmall(rs.getBytes("photo_small"));
-        return entity;
-    }
-
 }

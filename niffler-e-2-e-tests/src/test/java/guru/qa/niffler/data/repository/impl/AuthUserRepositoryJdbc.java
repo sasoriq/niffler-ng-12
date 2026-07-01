@@ -26,7 +26,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
         try (PreparedStatement userPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-            "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
+            "INSERT INTO \"user\" (username, spend_date, currency, amount, description, category_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
              PreparedStatement authorityPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO \"authority\" (user_id, authority) " +
