@@ -130,6 +130,4 @@ public class SpendDbClient implements SpendClient {
 
         return category;
     }
-
-
 }
