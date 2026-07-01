@@ -27,90 +27,119 @@ public class Databases {
     public record XaConsumer(Consumer<Connection> consumer, String jdbcUrl) {}
 
     public static <T> T transaction(Function<Connection, T> function, String jdbcUrl) {
+        return transaction(Connection.TRANSACTION_READ_COMMITTED, function, jdbcUrl);
+    }
+
+    public static <T> T transaction(int isolationLevel, Function<Connection, T> function, String jdbcUrl) {
         Connection connection = null;
         try {
             connection = connection(jdbcUrl);
             connection.setAutoCommit(false);
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            connection.setTransactionIsolation(isolationLevel);
             T result = function.apply(connection);
             connection.commit();
-            connection.setAutoCommit(true);
             return result;
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             if (connection != null) {
                 try {
                     connection.rollback();
-                    connection.setAutoCommit(true);
                 } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
+                    e.addSuppressed(ex);
                 }
             }
             throw new RuntimeException(e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException ignored) {
+                    // NOP
+                }
+            }
         }
     }
 
     @SafeVarargs
     public static <T> T xaTransaction(XaFunction<T>... actions) {
+        return xaTransaction(Connection.TRANSACTION_READ_COMMITTED, actions);
+    }
+
+    @SafeVarargs
+    public static <T> T xaTransaction(int isolationLevel, XaFunction<T>... actions) {
         UserTransaction ut = new UserTransactionImp();
         try {
             ut.begin();
             T result = null;
             for (XaFunction<T> action : actions) {
                 try (Connection connection = connection(action.jdbcUrl)) {
-                    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                    connection.setTransactionIsolation(isolationLevel);
                     result = action.function.apply(connection);
                 }
             }
             ut.commit();
             return result;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             try {
                 ut.rollback();
             } catch (SystemException ex) {
-                throw new RuntimeException(ex);
+                e.addSuppressed(ex);
             }
             throw new RuntimeException(e);
         }
     }
 
     public static void transaction(Consumer<Connection> consumer, String jdbcUrl) {
+        transaction(Connection.TRANSACTION_READ_COMMITTED, consumer, jdbcUrl);
+    }
+
+    public static void transaction(int isolationLevel, Consumer<Connection> consumer, String jdbcUrl) {
         Connection connection = null;
         try {
             connection = connection(jdbcUrl);
             connection.setAutoCommit(false);
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            connection.setTransactionIsolation(isolationLevel);
             consumer.accept(connection);
             connection.commit();
-            connection.setAutoCommit(true);
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             if (connection != null) {
                 try {
                     connection.rollback();
-                    connection.setAutoCommit(true);
                 } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
+                    e.addSuppressed(ex);
                 }
             }
             throw new RuntimeException(e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException ignored) {
+                    // NOP
+                }
+            }
         }
     }
 
     public static void xaTransaction(XaConsumer... actions) {
+        xaTransaction(Connection.TRANSACTION_READ_COMMITTED, actions);
+    }
+
+    public static void xaTransaction(int isolationLevel, XaConsumer... actions) {
         UserTransaction ut = new UserTransactionImp();
         try {
             ut.begin();
             for (XaConsumer action : actions) {
                 try (Connection connection = connection(action.jdbcUrl)) {
-                    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                    connection.setTransactionIsolation(isolationLevel);
                     action.consumer.accept(connection);
                 }
             }
             ut.commit();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             try {
                 ut.rollback();
             } catch (SystemException ex) {
-                throw new RuntimeException(ex);
+                e.addSuppressed(ex);
             }
             throw new RuntimeException(e);
         }
