@@ -164,7 +164,7 @@ public class Databases {
         );
     }
 
-    private static Connection connection(String jdbcUrl) throws SQLException {
+    private static Connection connection(String jdbcUrl) {
         return threadConnections.computeIfAbsent(
             Thread.currentThread().threadId(),
             key -> {
