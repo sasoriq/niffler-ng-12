@@ -51,22 +51,21 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     @Override
     public Optional<UserdataUserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(
                 "SELECT * FROM \"user\" WHERE id = ?",
                 UserdataUserEntityRowMapper.instance,
                 id
-            )
-        );
+            ).stream().findFirst();
     }
 
     @Override
     public Optional<UserdataUserEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(
             "SELECT * FROM \"user\" WHERE username = ?",
             UserdataUserEntityRowMapper.instance,
             username
-        ));
+        ).stream().findFirst();
     }
 
     @Override

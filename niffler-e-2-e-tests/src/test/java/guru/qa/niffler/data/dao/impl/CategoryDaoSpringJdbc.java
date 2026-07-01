@@ -46,20 +46,20 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     @Override
     public Optional<CategoryEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(
             "SELECT c.id AS c_id, " +
                 "c.name AS c_name, " +
                 "c.username AS c_username, " +
                 "c.archived AS c_archived FROM \"category\" c WHERE id = ?",
             CategoryEntityRowMapper.instance,
             id
-        ));
+        ).stream().findFirst();
     }
 
     @Override
     public Optional<CategoryEntity> findByUsernameAndCategoryName(String username, String categoryName) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(
             "SELECT c.id AS c_id, " +
                 "c.name AS c_name, " +
                 "c.username AS c_username, " +
@@ -67,7 +67,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
             CategoryEntityRowMapper.instance,
             username,
             categoryName
-        ));
+        ).stream().findFirst();
     }
 
     @Override

@@ -50,7 +50,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     @Override
     public Optional<SpendEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(
             "SELECT s.id AS s_id, " +
                 "s.username AS s_username, " +
                 "s.currency AS s_currency, " +
@@ -62,7 +62,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
                 "FROM \"spend\" s JOIN \"category\" c ON s.category_id = c.id WHERE s.id = ?",
             SpendEntityRowMapper.instance,
             id
-        ));
+        ).stream().findFirst();
     }
 
     @Override
