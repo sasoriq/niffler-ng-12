@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.UserdataUserEntity;
 import guru.qa.niffler.model.CurrencyValues;
@@ -10,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,14 +23,14 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public UserdataUserEntity createUser(UserdataUserEntity user) {
+    public UserdataUserEntity create(UserdataUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
-            "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photoSmall) " +
+            "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photo_small) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)",
             Statement.RETURN_GENERATED_KEYS
         )) {
             ps.setString(1, user.getUsername());
-            ps.setObject(2, user.getCurrency());
+            ps.setString(2, user.getCurrency().name());
             ps.setString(3, user.getFirstname());
             ps.setString(4, user.getSurname());
             ps.setString(5, user.getFullName());
@@ -58,8 +59,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
             "SELECT * FROM \"user\" WHERE id = ?"
         )) {
             ps.setObject(1, id);
-            ps.execute();
-            try (ResultSet rs = ps.getResultSet()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UserdataUserEntity entity = extractUserdataEntity(rs);
                     return Optional.of(entity);
@@ -77,9 +77,8 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         try (PreparedStatement ps = connection.prepareStatement(
             "SELECT * FROM \"user\" WHERE username = ?"
         )) {
-            ps.setObject(1, username);
-            ps.execute();
-            try (ResultSet rs = ps.getResultSet()) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UserdataUserEntity entity = extractUserdataEntity(rs);
                     return Optional.of(entity);
@@ -90,6 +89,24 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<UserdataUserEntity> findAll() {
+        List<UserdataUserEntity> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+            "SELECT * FROM \"user\""
+        )) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    UserdataUserEntity entity = extractUserdataEntity(rs);
+                    users.add(entity);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
     }
 
     @Override

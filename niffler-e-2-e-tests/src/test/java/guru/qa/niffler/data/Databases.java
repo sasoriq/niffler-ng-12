@@ -2,6 +2,7 @@ package guru.qa.niffler.data;
 
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
+import guru.qa.niffler.config.Config;
 import jakarta.transaction.SystemException;
 import jakarta.transaction.UserTransaction;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ public class Databases {
     private Databases() {
     }
 
+    private static final Config CFG = Config.getInstance();
     private static final Map<String, DataSource> dataSources = new ConcurrentHashMap<>();
     private static final Map<Long, Map<String, Connection>> threadConnections = new ConcurrentHashMap<>();
 
@@ -116,7 +118,7 @@ public class Databases {
         }
     }
 
-    private static DataSource dataSource(String jdbcUrl) {
+    public static DataSource dataSource(String jdbcUrl) {
         return dataSources.computeIfAbsent(
             jdbcUrl,
             key -> {
@@ -126,8 +128,8 @@ public class Databases {
                 dsBean.setXaDataSourceClassName("org.postgresql.xa.PGXADataSource");
                 Properties props = new Properties();
                 props.put("URL", jdbcUrl);
-                props.put("user", "postgres");
-                props.put("password", "secret");
+                props.put("user", CFG.dbUsername());
+                props.put("password", CFG.dbPassword());
                 dsBean.setXaProperties(props);
                 dsBean.setMaxPoolSize(10);
                 return dsBean;
